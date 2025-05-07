@@ -1,0 +1,30 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35825.156
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sendlix.Smpt.Relay", "Sendlix.Smpt.Relay\Sendlix.Smpt.Relay.csproj", "{8D2191BD-819D-439D-A691-4DA364FFD53C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{84D27F74-D2BA-6C25-2661-968F101900D9}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8D2191BD-819D-439D-A691-4DA364FFD53C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D2191BD-819D-439D-A691-4DA364FFD53C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D2191BD-819D-439D-A691-4DA364FFD53C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D2191BD-819D-439D-A691-4DA364FFD53C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ED58B88C-8A02-4E2C-926C-21A897ADEFFB}
+	EndGlobalSection
+EndGlobal

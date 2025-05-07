@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Sendlix.Smpt.Relay": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

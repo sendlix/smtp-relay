@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option csharp_namespace = "Sendlix.Api.V1.Protos";
+package sendlix.api.v1;
+
+service Email {
+  rpc SendEmlEmail (EmlMailRequest) returns (SendEmailResponse) {}
+}
+
+message EmlMailRequest {
+  bytes mail = 1;
+  AdditionalInfos additionalInfos = 2;
+}
+
+message SendEmailResponse {
+  repeated string message = 1;
+  int64 emailsLeft = 2;
+}
+
+
+message EmailData {
+    string email = 1;
+    optional string name = 2;
+}
+
+message AdditionalInfos {
+  optional string category = 2;  
+}
