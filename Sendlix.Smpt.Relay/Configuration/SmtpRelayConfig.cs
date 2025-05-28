@@ -3,7 +3,7 @@ namespace Sendlix.Smpt.Relay.Configuration;
 public class SmtpRelayConfig
 {
     public string ListenAddress { get; set; } = "127.0.0.1";
-    public int Port { get; set; } = 587;
+    public int? Port { get; set; }
     public bool TestMode { get; set; } = false;
     public string? ServerCertificatePath { get; set; }
     public SendlixApiKeyConfig Auth { get; set; } = new SendlixApiKeyConfig();

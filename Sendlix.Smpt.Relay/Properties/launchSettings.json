@@ -1,7 +1,10 @@
 {
   "profiles": {
     "Sendlix.Smpt.Relay": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "environmentVariables": {
+        "TestMode": "True"
+      }
     },
     "Container (Dockerfile)": {
       "commandName": "Docker"
