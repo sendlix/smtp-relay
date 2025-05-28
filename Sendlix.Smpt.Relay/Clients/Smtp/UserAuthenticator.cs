@@ -38,7 +38,7 @@ namespace Sendlix.Smpt.Relay.Clients.Smtp
             }
             catch (Exception ex)
             {
-                _logger.LogDebug(ex, "ser authentication failed for user {User}", user);
+                _logger.LogDebug(ex, "User authentication failed for user {User}", user);
                 return false;
             }
 
