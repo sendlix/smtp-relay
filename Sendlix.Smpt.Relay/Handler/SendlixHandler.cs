@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Sendlix.Api.V1.Protos;
 using Sendlix.Smpt.Relay.Clients.Api;
 using Sendlix.Smpt.Relay.Configuration;
+using System.Buffers;
 using System.Collections.Concurrent;
 
 namespace Sendlix.Smpt.Relay.Handler
@@ -40,7 +41,7 @@ namespace Sendlix.Smpt.Relay.Handler
             return new SendlixHandler(authClient, EmailClient, metadata);
         }
 
-        public async Task<AuthResponse> Login(string username, string password)
+        public async Task<AuthResponse> Login(string username, string password, CancellationToken cancellationToken)
         {
             ArgumentException.ThrowIfNullOrEmpty(username, nameof(username));
             ArgumentException.ThrowIfNullOrEmpty(password, nameof(password));
@@ -62,7 +63,7 @@ namespace Sendlix.Smpt.Relay.Handler
 
             if (!authCache.ContainsKey(keyIdLong))
             {
-                _ = authCache.TryAdd(keyIdLong, await RetrieveJwtToken(keyIdLong, secret));
+                _ = authCache.TryAdd(keyIdLong, await RetrieveJwtToken(keyIdLong, secret, cancellationToken));
             }
 
             AuthResponse authResponse = authCache[keyIdLong];
@@ -70,7 +71,7 @@ namespace Sendlix.Smpt.Relay.Handler
             if (authResponse.Expires.ToDateTime() < DateTime.UtcNow.AddMinutes(1))
             {
                 _ = authCache.Remove(keyIdLong, out _);
-                authResponse = await RetrieveJwtToken(keyIdLong, secret);
+                authResponse = await RetrieveJwtToken(keyIdLong, secret, cancellationToken);
                 _ = authCache.TryAdd(keyIdLong, authResponse);
             }
 
@@ -78,7 +79,7 @@ namespace Sendlix.Smpt.Relay.Handler
         }
 
 
-        private async Task<AuthResponse> RetrieveJwtToken(long keyId, string secret)
+        private async Task<AuthResponse> RetrieveJwtToken(long keyId, string secret, CancellationToken token)
         {
             ApiKey apiKey = new()
             {
@@ -92,15 +93,15 @@ namespace Sendlix.Smpt.Relay.Handler
 
 
 
-            AuthResponse res = await _authClient.GetJwtTokenAsync(request, _metadata);
+            AuthResponse res = await _authClient.GetJwtTokenAsync(request, _metadata, null, token);
             return res;
         }
 
-        public async Task<bool> SendEmail(string eml, string authToken, string? category)
+        public async Task<bool> SendEmail(ReadOnlySequence<byte> eml, string authToken, CancellationToken cancellationToken, string? category)
         {
             EmlMailRequest mail = new()
             {
-                Mail = ByteString.CopyFromUtf8(eml),
+                Mail = ByteString.CopyFrom(eml.ToArray()),
             };
 
             if (category != null)
@@ -113,7 +114,7 @@ namespace Sendlix.Smpt.Relay.Handler
                 { "Authorization", $"Bearer {authToken}" }
             };
 
-            _ = await _EmailClient.SendEmlEmailAsync(mail, entries);
+            _ = await _EmailClient.SendEmlEmailAsync(mail, entries, null, cancellationToken);
             return true;
 
         }

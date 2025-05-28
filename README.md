@@ -26,7 +26,7 @@ The Sendlix SMTP Relay is a lightweight application that bridges your applicatio
 The Sendlix SMTP Relay can be configured using environment variables. All settings are optional. Below are the available options:
 
 - `ListenAddress`: The IP address the relay binds to (default: `127.0.0.1`).
-- `Port`: The port the relay listens on (default: `587`).
+- `Port`: The port the relay listens on (default: `587` and `465`).
 - `ServerCertificatePath`: Path to an SSL certificate in PKCS12 format (optional).
 - `Auth:Username`: Username for Sendlix API authentication.
 - `Auth:ApiKey`: API key for Sendlix API authentication.
@@ -50,5 +50,5 @@ Run the application to start listening for SMTP connections on the configured ad
 You can also run the Sendlix SMTP Relay in a Docker container:
 
 ```bash
-docker run -p 587:587 ghcr.io/sendlix/smtp-relay/sendlix-smtp-relay:latest
+docker run -p 587:587 -p 465:465 ghcr.io/sendlix/smtp-relay/sendlix-smtp-relay:latest
 ```

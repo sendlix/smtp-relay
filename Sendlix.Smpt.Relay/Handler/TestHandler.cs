@@ -1,10 +1,7 @@
 ﻿
 using Sendlix.Api.V1.Protos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Buffers;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Sendlix.Smpt.Relay.Handler
 {
@@ -12,21 +9,22 @@ namespace Sendlix.Smpt.Relay.Handler
     {
         // { "domain": "example.com" }
         public const string JWT = ".eyAiZG9tYWluIjogImV4YW1wbGUuY29tIiB9.";
-        public Task<AuthResponse> Login(string username, string password)
+        public Task<AuthResponse> Login(string username, string password, CancellationToken _)
         {
-           return Task.FromResult(  new AuthResponse()
+            return Task.FromResult(new AuthResponse()
             {
                 Token = JWT,
                 Expires = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.UtcNow.AddHours(1)),
             });
         }
 
-        public Task<bool> SendEmail(string eml, string authToken, string? category = null)
+        public Task<bool> SendEmail(ReadOnlySequence<byte> eml, string authToken, CancellationToken cancellationToken, string? category = null)
         {
             Console.WriteLine("-------------------- Email --------------------");
-            Console.WriteLine(eml);
+            Console.WriteLine(Encoding.UTF8.GetString(eml.ToArray()));
             Console.WriteLine("------------------ End Email ------------------");
             return Task.FromResult(true);
         }
+
     }
 }
