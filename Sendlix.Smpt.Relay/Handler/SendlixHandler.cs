@@ -7,6 +7,7 @@ using Sendlix.Smpt.Relay.Clients.Api;
 using Sendlix.Smpt.Relay.Configuration;
 using System.Buffers;
 using System.Collections.Concurrent;
+using System.Security.Cryptography;
 
 namespace Sendlix.Smpt.Relay.Handler
 {
@@ -14,9 +15,9 @@ namespace Sendlix.Smpt.Relay.Handler
     {
         private readonly Auth.AuthClient _authClient;
         private readonly Email.EmailClient _EmailClient;
-        private static readonly ConcurrentDictionary<long, AuthResponse> authCache = new();
+        private static readonly ConcurrentDictionary<string, AuthResponse> authCache = new();
         private readonly Metadata _metadata;
-
+        private SHA256 sHA = SHA256.Create();
 
         private SendlixHandler(Auth.AuthClient authClient, Email.EmailClient EmailClient, Metadata metadata)
         {
@@ -56,23 +57,25 @@ namespace Sendlix.Smpt.Relay.Handler
             string secret = split[0];
             string keyId = split[1].Trim();
 
+            string hashedSecret = Convert.ToBase64String(sHA.ComputeHash(System.Text.Encoding.UTF8.GetBytes(secret + keyId)));
+
             if (!long.TryParse(keyId, out long keyIdLong))
             {
                 throw new ArgumentException("KeyId must be a valid long", nameof(password));
             }
 
-            if (!authCache.ContainsKey(keyIdLong))
+            if (!authCache.ContainsKey(hashedSecret))
             {
-                _ = authCache.TryAdd(keyIdLong, await RetrieveJwtToken(keyIdLong, secret, cancellationToken));
+                _ = authCache.TryAdd(hashedSecret, await RetrieveJwtToken(keyIdLong, secret, cancellationToken));
             }
 
-            AuthResponse authResponse = authCache[keyIdLong];
+            AuthResponse authResponse = authCache[hashedSecret];
 
             if (authResponse.Expires.ToDateTime() < DateTime.UtcNow.AddMinutes(1))
             {
-                _ = authCache.Remove(keyIdLong, out _);
+                _ = authCache.Remove(hashedSecret, out _);
                 authResponse = await RetrieveJwtToken(keyIdLong, secret, cancellationToken);
-                _ = authCache.TryAdd(keyIdLong, authResponse);
+                _ = authCache.TryAdd(hashedSecret, authResponse);
             }
 
             return authResponse;
