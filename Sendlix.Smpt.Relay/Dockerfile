@@ -1,12 +1,12 @@
 # Learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging at https://aka.ms/customizecontainer.
 
 # This stage is used when run by VS in fast mode (default for Debug configuration).
-FROM mcr.microsoft.com/dotnet/runtime:10.0-alpine AS base
+FROM mcr.microsoft.com/dotnet/runtime:9.0-alpine AS base
 USER $APP_UID
 WORKDIR /app
 
 # This stage is used to build the service project.
-FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 
 RUN apk add --no-cache libc6-compat
 
