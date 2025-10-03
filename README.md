@@ -31,6 +31,7 @@ The Sendlix SMTP Relay can be configured using environment variables. All settin
 - `Auth:Username`: Username for Sendlix API authentication.
 - `Auth:ApiKey`: API key for Sendlix API authentication.
 - `Auth:ApiKeyPath`: Path to a file containing the API key (alternative to `Auth:ApiKey`).
+- `AuthorizedSenders:x`: List of email addresses allowed to send emails through the relay (where `x` is a zero-based index).
 
 The `Auth:*` settings allow you to define default credentials for the relay. This enables clients to send emails without authenticating, as the relay will handle authentication with Sendlix on their behalf.
 
@@ -39,6 +40,7 @@ The `Auth:*` settings allow you to define default credentials for the relay. Thi
 ```bash
 ListenAddress=0.0.0.0
 Port=587
+AuthorizedSenders:0=sendlix.com
 ```
 
 ## Usage

@@ -7,6 +7,7 @@ public class SmtpRelayConfig
     public bool TestMode { get; set; } = false;
     public string? ServerCertificatePath { get; set; }
     public SendlixApiKeyConfig Auth { get; set; } = new SendlixApiKeyConfig();
+    public string[] AuthorizedSenders { get; set; } = [];
 }
 
 public class SendlixApiKeyConfig

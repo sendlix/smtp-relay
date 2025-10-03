@@ -5,8 +5,6 @@ using Sendlix.Smpt.Relay.Configuration;
 using SmtpServer;
 using SmtpServer.ComponentModel;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
-
 
 IConfigurationRoot config = new ConfigurationBuilder()
     .AddEnvironmentVariables()
@@ -30,12 +28,13 @@ SmtpServerOptionsBuilder options = new SmtpServerOptionsBuilder()
     .MaxMessageSize(10 * 1024 * 1024);
 
 
-X509Certificate? cert = LoadCertificate();
-NetworkCredential? credentials = LoadCredentials();
+if (smtpConfig.AuthorizedSenders.Length != 0)
+    logger.LogInformation("Email can only send from the following addresses: {AuthorizedSenders}", string.Join(", ", smtpConfig.AuthorizedSenders));
 
+NetworkCredential? credentials = LoadCredentials();
+SmtpCertificateProvider? cert = SmtpCertificateProvider.Build(smtpConfig, loggerFactory);
 
 int[] ports = smtpConfig.Port.HasValue ? [smtpConfig.Port.Value] : [587, 465];
-
 
 foreach (int port in ports)
 {
@@ -99,29 +98,11 @@ NetworkCredential? LoadCredentials()
     }
 }
 
-
-X509Certificate? LoadCertificate()
-{
-    if (string.IsNullOrEmpty(smtpConfig.ServerCertificatePath))
-        return null;
-
-    if (!File.Exists(smtpConfig.ServerCertificatePath))
-    {
-        logger.LogError("SSL certificate path {SslPath} does not exist", smtpConfig.ServerCertificatePath);
-        return null;
-    }
-
-    X509Certificate2 cert = X509CertificateLoader.LoadPkcs12FromFile(smtpConfig.ServerCertificatePath, "");
-    logger.LogInformation("Loaded SSL certificate from {SslPath}", smtpConfig.ServerCertificatePath);
-    return cert;
-}
-
-
 ServiceProvider serviceProvider = new();
 
 UserAuthenticator user = UserAuthenticator.Build(smtpConfig, loggerFactory);
 
-MailboxFilter mailboxFilter = new();
+MailboxFilter mailboxFilter = new(smtpConfig);
 MessageStore store = new();
 
 serviceProvider.Add(user);
