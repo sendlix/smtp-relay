@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <InvariantGlobalization>true</InvariantGlobalization>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-	<Version>1.2.0</Version>
+	<Version>1.2.1</Version>
     <DockerfileContext>.</DockerfileContext>
 	<OptimizationPreference>Speed</OptimizationPreference>
 	<PublishAot>False</PublishAot>

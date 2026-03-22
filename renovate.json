@@ -2,5 +2,15 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "prHourlyLimit": 2,
+  "prConcurrentLimit": 5,
+  "rangeStrategy": "bump",
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["patch", "minor"],
+      "automerge": true,
+      "automergeType": "branch"
+    }
   ]
 }

@@ -38,12 +38,15 @@ namespace Sendlix.Smpt.Relay.Configuration
 
         public X509Certificate GetServerCertificate(ISessionContext sessionContext)
         {
+            if(DateTime.Now.AddDays(1) >= certificate?.NotAfter)          
+                certificate = null;
+            
 
-            if (certificate == null || DateTime.UtcNow >= certificate.NotAfter)
+            if (certificate == null)
             {
                 certificate = X509CertificateLoader.LoadPkcs12FromFile(certPath, "");
 
-                if (DateTime.UtcNow >= certificate.NotAfter)
+                if (DateTime.Now >= certificate.NotAfter)
                 {
                     logger.LogCritical("SSL certificate is expired");
                     throw new InvalidOperationException("SSL certificate is expired");

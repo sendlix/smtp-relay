@@ -25,7 +25,7 @@ SmtpRelayConfig smtpConfig = config.Get<SmtpRelayConfig>() ?? new SmtpRelayConfi
 
 SmtpServerOptionsBuilder options = new SmtpServerOptionsBuilder()
     .ServerName(smtpConfig.ListenAddress)
-    .MaxMessageSize(10 * 1024 * 1024);
+    .MaxMessageSize(9 * 1024 * 1024);
 
 
 if (smtpConfig.AuthorizedSenders.Length != 0)
@@ -38,8 +38,7 @@ int[] ports = smtpConfig.Port.HasValue ? [smtpConfig.Port.Value] : [587, 465];
 
 foreach (int port in ports)
 {
-    EndpointDefinitionBuilder endpoint = new EndpointDefinitionBuilder()
-        .Port(port);
+    EndpointDefinitionBuilder endpoint = new EndpointDefinitionBuilder().Port(port);
 
     _ = endpoint.AllowUnsecureAuthentication(true);
     if (cert != null)
@@ -47,7 +46,6 @@ foreach (int port in ports)
         _ = endpoint.Certificate(cert);
         _ = endpoint.AllowUnsecureAuthentication(false);
         _ = endpoint.IsSecure(port == 465);
-
     }
 
     _ = endpoint.AuthenticationRequired(credentials == null);
@@ -113,7 +111,6 @@ SmtpServer.SmtpServer smtpServer = new(options.Build(), serviceProvider);
 
 smtpServer.SessionCreated += async (sender, e) =>
 {
-    e.Context.Properties["scope"] = logger.BeginScope("Client {ClientId}", e.Context.SessionId);
     logger.LogInformation("Session created");
     if (credentials is not null)
         e.Context.Properties["SendlixClient"] = await user.Login(credentials, CancellationToken.None);
@@ -121,11 +118,7 @@ smtpServer.SessionCreated += async (sender, e) =>
 
 smtpServer.SessionCompleted += (sender, e) =>
 {
-    if (e.Context.Properties.TryGetValue("scope", out object? scope) && scope is IDisposable disposableScope)
-    {
-        logger.LogInformation("Session completed");
-        disposableScope.Dispose();
-    }
+    logger.LogInformation("Session completed");
 };
 
 AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
