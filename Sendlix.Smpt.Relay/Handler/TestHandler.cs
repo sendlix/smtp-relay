@@ -15,10 +15,11 @@ namespace Sendlix.Smpt.Relay.Handler
             {
                 Token = JWT,
                 Expires = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.UtcNow.AddHours(1)),
+                Domains = { "example.com" },
             });
         }
 
-        public Task<bool> SendEmail(ReadOnlySequence<byte> eml, string authToken, CancellationToken cancellationToken, string? category = null)
+        public Task<bool> SendEmail(ReadOnlySequence<byte> eml, string authToken, CancellationToken cancellationToken, string? category = null, EmailVerification verification = EmailVerification.Async)
         {
             Console.WriteLine("-------------------- Email --------------------");
             Console.WriteLine(Encoding.UTF8.GetString(eml.ToArray()));

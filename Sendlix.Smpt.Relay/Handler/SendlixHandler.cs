@@ -17,7 +17,7 @@ namespace Sendlix.Smpt.Relay.Handler
         private readonly Email.EmailClient _EmailClient;
         private static readonly ConcurrentDictionary<string, AuthResponse> authCache = new();
         private readonly Metadata _metadata;
-        private SHA256 sHA = SHA256.Create();
+        private readonly SHA256 sHA = SHA256.Create();
 
         private SendlixHandler(Auth.AuthClient authClient, Email.EmailClient EmailClient, Metadata metadata)
         {
@@ -72,8 +72,7 @@ namespace Sendlix.Smpt.Relay.Handler
             AuthResponse authResponse = authCache[hashedSecret];
 
             if (authResponse.Expires.ToDateTime() < DateTime.UtcNow.AddMinutes(1))
-            {
-                _ = authCache.Remove(hashedSecret, out _);
+            {  
                 authResponse = await RetrieveJwtToken(keyIdLong, secret, cancellationToken);
                 _ = authCache.TryAdd(hashedSecret, authResponse);
             }
@@ -100,17 +99,21 @@ namespace Sendlix.Smpt.Relay.Handler
             return res;
         }
 
-        public async Task<bool> SendEmail(ReadOnlySequence<byte> eml, string authToken, CancellationToken cancellationToken, string? category)
+        public async Task<bool> SendEmail(ReadOnlySequence<byte> eml, string authToken, CancellationToken cancellationToken, string? category, EmailVerification emailVerification = EmailVerification.Async)
         {
             EmlMailRequest mail = new()
             {
-                Mail = ByteString.CopyFrom(eml.ToArray()),
+                Mail = ToByteString(eml)
             };
 
-            if (category != null)
+            AdditionalInfos additionalInfos = new();
+
+            if(!string.IsNullOrEmpty(category))
             {
-                mail.AdditionalInfos = new AdditionalInfos() { Category = category };
+                additionalInfos.Category = category;
             }
+            additionalInfos.EmailVerification = emailVerification;
+            mail.AdditionalInfos = additionalInfos;
 
             Metadata entries = new()
             {
@@ -120,6 +123,16 @@ namespace Sendlix.Smpt.Relay.Handler
             _ = await _EmailClient.SendEmlEmailAsync(mail, entries, null, cancellationToken);
             return true;
 
+        }
+
+        public static ByteString ToByteString(in ReadOnlySequence<byte> sequence)
+        {
+            if (sequence.IsSingleSegment)
+            {
+                return ByteString.CopyFrom(sequence.First.Span);
+            }
+
+            return ByteString.CopyFrom(sequence.ToArray());
         }
     }
 }

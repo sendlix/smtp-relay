@@ -17,6 +17,7 @@ using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
                options.IncludeScopes = true;
                options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
                options.ColorBehavior = Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
+               options.SingleLine = true;
            }));
 
 ILogger logger = loggerFactory.CreateLogger("Sendlix.Smtp.Relay");
@@ -111,14 +112,14 @@ SmtpServer.SmtpServer smtpServer = new(options.Build(), serviceProvider);
 
 smtpServer.SessionCreated += async (sender, e) =>
 {
-    logger.LogInformation("Session created");
+    logger.LogDebug("Session created");
     if (credentials is not null)
         e.Context.Properties["SendlixClient"] = await user.Login(credentials, CancellationToken.None);
 };
 
 smtpServer.SessionCompleted += (sender, e) =>
 {
-    logger.LogInformation("Session completed");
+    logger.LogDebug("Session completed");
 };
 
 AppDomain.CurrentDomain.ProcessExit += (sender, e) =>

@@ -17,6 +17,11 @@ message SendEmailResponse {
   int64 emailsLeft = 2;
 }
 
+enum EmailVerification {
+    Async = 0;
+    Sync = 1;
+}
+
 
 message EmailData {
     string email = 1;
@@ -25,4 +30,5 @@ message EmailData {
 
 message AdditionalInfos {
   optional string category = 2;  
+  EmailVerification emailVerification = 5;
 }

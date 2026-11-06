@@ -45,3 +45,43 @@ jobs:
           labels: ${{ steps.meta-preview.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+  delete-preview:
+    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete preview image for closed PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_NAME: sendlix-smtp-relay
+        run: |
+          set -e
+          echo "Event path: $GITHUB_EVENT_PATH"
+          if [ ! -f "$GITHUB_EVENT_PATH" ]; then
+            echo "No event payload available, exiting"
+            exit 0
+          fi
+          HEAD_SHA=$(jq -r .pull_request.head.sha < "$GITHUB_EVENT_PATH")
+          if [ -z "$HEAD_SHA" ] || [ "$HEAD_SHA" = "null" ]; then
+            echo "No head sha found in event payload, exiting"
+            exit 0
+          fi
+          SHORT=${HEAD_SHA:0:7}
+          TAG="preview-$SHORT"
+          echo "Looking for package version with tag: $TAG"
+          OWNER=${GITHUB_REPOSITORY%%/*}
+          PACKAGE=$PACKAGE_NAME
+          # Try orgs then users
+          for OWNER_TYPE in orgs users; do
+            API_URL="https://api.github.com/$OWNER_TYPE/$OWNER/packages/container/$PACKAGE/versions?per_page=100"
+            echo "Querying $API_URL"
+            VERSIONS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$API_URL")
+            VERSION_ID=$(echo "$VERSIONS" | jq -r --arg TAG "$TAG" '.[] | select(.metadata.container.tags[]? == $TAG) | .id' | head -n1)
+            if [ -n "$VERSION_ID" ]; then
+              DELETE_URL="https://api.github.com/$OWNER_TYPE/$OWNER/packages/container/$PACKAGE/versions/$VERSION_ID"
+              echo "Deleting package version $VERSION_ID via $DELETE_URL"
+              curl -s -X DELETE -H "Authorization: token $GITHUB_TOKEN" "$DELETE_URL"
+              echo "Deleted package version $VERSION_ID"
+              exit 0
+            fi
+          done
+          echo "No matching package version found for tag $TAG"

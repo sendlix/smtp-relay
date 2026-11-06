@@ -3,6 +3,7 @@ using Sendlix.Smpt.Relay.Clients.Api;
 using Sendlix.Smpt.Relay.Handler;
 using SmtpServer;
 using SmtpServer.Authentication;
+using SmtpServer.Protocol;
 using System.Net;
 
 namespace Sendlix.Smpt.Relay.Clients.Smtp
@@ -36,6 +37,11 @@ namespace Sendlix.Smpt.Relay.Clients.Smtp
 
                 return client.IsAuthenticated;
             }
+            catch (ArgumentException ex) when (ex.ParamName == "username")
+            {
+                throw new SmtpResponseException(new SmtpResponse(SmtpReplyCode.AuthenticationFailed, ex.Message));
+            }
+
             catch (Exception ex)
             {
                 _logger.LogDebug(ex, "User authentication failed for user {User}", user);

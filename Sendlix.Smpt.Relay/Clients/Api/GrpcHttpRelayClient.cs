@@ -17,11 +17,12 @@ namespace Sendlix.Smpt.Relay.Clients.Api
             invoker = new HttpMessageInvoker(primaryHandler, false);
             UserAgent = userAgent;
         }
-
+            
+        private static readonly string version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            ProductHeaderValue header = new("sendlix-smtp-relay", Assembly.GetExecutingAssembly().GetName()?.Version?.ToString());
+            ProductHeaderValue header = new("sendlix-smtp-relay", version);
             var userAgent = new ProductInfoHeaderValue(header);
             request.Headers.UserAgent.Clear();
             request.Headers.UserAgent.Add(userAgent);

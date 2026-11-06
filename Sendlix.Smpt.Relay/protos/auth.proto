@@ -11,6 +11,9 @@ service Auth {
 message AuthResponse {
 	string token = 1;
 	google.protobuf.Timestamp expires = 2;
+	repeated string scopes = 3;
+	repeated string domains = 4;
+	bool isPlus = 5;
 }
 
 message AuthRequest {

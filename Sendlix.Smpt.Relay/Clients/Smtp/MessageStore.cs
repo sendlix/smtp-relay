@@ -12,7 +12,7 @@ namespace Sendlix.Smpt.Relay.Clients.Smtp
         {
             SendlixApiClient client = (SendlixApiClient)context.Properties["SendlixClient"] ?? throw new InvalidOperationException("Client is not authenticated");
             _ = await client.SendEmail(buffer, cancellationToken);
-            return new SmtpResponse(SmtpReplyCode.Ok);
+            return SmtpResponse.Ok;
         }
     }
 }

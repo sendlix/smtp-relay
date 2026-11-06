@@ -9,7 +9,7 @@ namespace Sendlix.Smpt.Relay.Handler
     public interface IHandler
     {
         public Task<AuthResponse> Login(string username, string password, CancellationToken cancellationToken);
-        public Task<bool> SendEmail(ReadOnlySequence<byte> eml, string authToken, CancellationToken cancellationToken, string? category = null);
+        public Task<bool> SendEmail(ReadOnlySequence<byte> eml, string authToken, CancellationToken cancellationToken, string? category = null, EmailVerification emailVerification = EmailVerification.Async);
 
     }
 }
